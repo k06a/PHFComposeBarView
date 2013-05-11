@@ -50,44 +50,82 @@
     [self addSubview:imageView];
     
     [self.images setObject:imageView forKey:@(ch)];
-    [self insertText:[NSString stringWithCharacters:&ch length:1]];
-    [self setText:self.text];
+    if (self.text.length == 0)
+        self.text = [NSString stringWithCharacters:&ch length:1];
+    else
+        [self insertText:[NSString stringWithCharacters:&ch length:1]];
     
-    //NSMutableAttributedString * str = [self.attributedText mutableCopy];
-    //NSDictionary * attributes = @{NSFontAttributeName:[UIFont fontWithName:self.font.fontName size:30]};
-    //[str setAttributes:attributes range:NSMakeRange(self.selectedRange.location-1,1)];
-    //self.attributedText = str;
+    NSMutableAttributedString * str = [self.attributedText mutableCopy];
+    NSDictionary * attributes = @{NSFontAttributeName:[UIFont fontWithName:self.font.fontName size:40.0]};
+    [str setAttributes:attributes range:NSMakeRange(self.selectedRange.location-1,1)];
+    [str setAttributes:@{} range:NSMakeRange(self.selectedRange.location,0)];
+    self.attributedText = str;
 }
 
-- (void)setText:(NSString *)text
+- (BOOL)check:(NSRange)range prev:(NSRange)prevRange
 {
-    [super setText:text];
+    NSInteger index = prevRange.location+prevRange.length;
+    NSInteger length = range.location-prevRange.location-prevRange.length;
+    NSDictionary * attrs = [self.attributedText attributesAtIndex:index effectiveRange:NULL];
     
+    if ([attrs[NSFontAttributeName] pointSize] == 40.0)
+    {
+        NSMutableAttributedString * str = [self.attributedText mutableCopy];
+        NSDictionary * attributes = @{};
+        [str setAttributes:attributes range:NSMakeRange(index,length)];
+        self.attributedText = str;
+        return YES;
+    }
+    
+    return NO;
+}
+
+- (void)recalculate
+{
     NSMutableArray * toDelete = [NSMutableArray array];
     
     unichar ch = [@"Ẁ" characterAtIndex:0];
     for (int i = 0; i < 10; i++, ch+=2)
     {
         NSString * str = [NSString stringWithCharacters:&ch length:1];
-        NSRange range = NSMakeRange(-1, text.length+1);
+        NSRange range = NSMakeRange(-1, self.text.length+1);
+        NSRange prevRange = NSMakeRange(NSNotFound, 0);
         int count = 0;
-        while ((range = [text rangeOfString:str options:0 range:NSMakeRange(range.location+1,text.length - range.location - 1)]).location != NSNotFound)
+        while ((range = [self.text rangeOfString:str options:0 range:NSMakeRange(range.location+1,self.text.length - range.location - 1)]).location != NSNotFound)
         {
+            if (prevRange.location != NSNotFound)
+            {
+                if ([self check:range prev:prevRange])
+                    return;
+            }
+            
             if (count > 0)
             {
                 [toDelete addObject:@(range.location)];
                 continue;
             }
             
+            NSAttributedString * str = [self.attributedText attributedSubstringFromRange:range];
+            CGSize size = [str boundingRectWithSize:CGSizeMake(100,100) options:0 context:nil].size;
+            
             UITextPosition * begin = [self positionFromPosition:self.beginningOfDocument offset:range.location];
             UITextPosition * end = [self positionFromPosition:self.beginningOfDocument offset:range.location+range.length];
             UITextRange * textRange = [self textRangeFromPosition:begin toPosition:end];
-            CGRect rect = [self firstRectForRange:textRange];
+            CGPoint origin = [self firstRectForRange:textRange].origin;
+            
+            CGRect rect = (CGRect){origin,size};
             
             UIImageView * imageView = self.images[@(ch)];
             imageView.hidden = NO;
             imageView.frame = rect;
             count++;
+            prevRange = range;
+        }
+        
+        if (prevRange.location != NSNotFound)
+        {
+            if ([self check:NSMakeRange(self.text.length,0) prev:prevRange])
+                return;
         }
         
         if (count == 0)
@@ -100,11 +138,23 @@
     if (toDelete.count > 0)
     {
         [toDelete sortUsingSelector:@selector(compare:)];
-        NSMutableString * str = [text mutableCopy];
+        NSMutableAttributedString * str = [self.attributedText mutableCopy];
         for (NSNumber * location in toDelete.reverseObjectEnumerator)
             [str replaceCharactersInRange:NSMakeRange(location.intValue, 1) withString:@""];
-        [self setText:str];
+        [self setAttributedText:str];
     }
+}
+
+- (void)setText:(NSString *)text
+{
+    [super setText:text];
+    [self recalculate];
+}
+
+- (void)setAttributedText:(NSAttributedString *)attributedText
+{
+    [super setAttributedText:attributedText];
+    [self recalculate];
 }
 
 - (NSArray *)insertedImages

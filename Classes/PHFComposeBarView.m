@@ -107,6 +107,10 @@ static CGFloat kTextViewToSuperviewHeightDelta;
     [self scrollToCaretIfNeeded];
     [self updateCharCountLabel];
     [self updateButtonEnabled];
+    
+    NSRange range = self.textView.selectedRange;
+    self.textView.attributedText = self.textView.attributedText;
+    self.textView.selectedRange = range;
 }
 
 #pragma mark - Public Properties
@@ -227,7 +231,10 @@ static CGFloat kTextViewToSuperviewHeightDelta;
 
 - (void)insertImage:(UIImage *)image
 {
+    NSRange range = self.textView.selectedRange;
     [(PHFComposeBarView_TextView*)self.textView insertImage:image];
+    self.textView.selectedRange = NSMakeRange(range.location+1, 0);
+    [self textViewDidChange:self.textView];
 }
 
 - (NSArray *)insertedImages

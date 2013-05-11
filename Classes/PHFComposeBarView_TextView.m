@@ -66,12 +66,14 @@
 {
     NSInteger index = prevRange.location+prevRange.length;
     NSInteger length = range.location-prevRange.location-prevRange.length;
+    if (index < 0 || length == 0)
+        return NO;
     NSDictionary * attrs = [self.attributedText attributesAtIndex:index effectiveRange:NULL];
     
     if ([attrs[NSFontAttributeName] pointSize] == 40.0)
     {
         NSMutableAttributedString * str = [self.attributedText mutableCopy];
-        NSDictionary * attributes = @{};
+        NSDictionary * attributes = @{NSFontAttributeName:[UIFont fontWithName:self.font.fontName size:16.0]};
         [str setAttributes:attributes range:NSMakeRange(index,length)];
         self.attributedText = str;
         return YES;
@@ -89,11 +91,11 @@
     {
         NSString * str = [NSString stringWithCharacters:&ch length:1];
         NSRange range = NSMakeRange(-1, self.text.length+1);
-        NSRange prevRange = NSMakeRange(NSNotFound, 0);
+        NSRange prevRange = NSMakeRange(NSNotFound, 0-NSNotFound);
         int count = 0;
         while ((range = [self.text rangeOfString:str options:0 range:NSMakeRange(range.location+1,self.text.length - range.location - 1)]).location != NSNotFound)
         {
-            if (prevRange.location != NSNotFound)
+            //if (prevRange.location != NSNotFound)
             {
                 if ([self check:range prev:prevRange])
                     return;

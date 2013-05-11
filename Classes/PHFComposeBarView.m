@@ -225,6 +225,21 @@ static CGFloat kTextViewToSuperviewHeightDelta;
     [self updateUtilityButtonVisibility];
 }
 
+- (void)insertImage:(UIImage *)image
+{
+    [(PHFComposeBarView_TextView*)self.textView insertImage:image];
+}
+
+- (NSArray *)insertedImages
+{
+    return [(PHFComposeBarView_TextView*)self.textView insertedImages];
+}
+
+- (NSArray *)insertedImagesPositions
+{
+    return [(PHFComposeBarView_TextView*)self.textView insertedImagesPositions];
+}
+
 #pragma mark - Internal Properties
 
 @synthesize backgroundView = _backgroundView;

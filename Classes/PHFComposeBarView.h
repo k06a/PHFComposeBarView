@@ -70,6 +70,10 @@ extern NSString *const PHFComposeBarViewFrameEndUserInfoKey;          // NSValue
 // is set. Thus, to hide the button, set this property to nil.
 @property (strong, nonatomic) UIImage *utilityButtonImage UI_APPEARANCE_SELECTOR;
 
+- (void)insertImage:(UIImage *)image;
+- (NSArray *)insertedImages;
+- (NSArray *)insertedImagesPositions;
+
 @end
 
 

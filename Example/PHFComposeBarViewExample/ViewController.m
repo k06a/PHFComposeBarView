@@ -1,6 +1,6 @@
 #import "ViewController.h"
 
-@interface ViewController ()
+@interface ViewController () <UIActionSheetDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate>
 @property (readonly, nonatomic) UIView *container;
 @property (readonly, nonatomic) PHFComposeBarView *composeBarView;
 @property (readonly, nonatomic) UITextView *textView;
@@ -135,8 +135,34 @@ CGRect const kInitialViewFrame = { 0.0f, 0.0f, 320.0f, 480.0f };
     [composeBarView resignFirstResponder];
 }
 
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
+{
+    UIImage * image = info[UIImagePickerControllerOriginalImage];
+    [self.composeBarView insertImage:image];
+    [self dismissModalViewControllerAnimated:YES];
+}
+
+- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    if (buttonIndex == actionSheet.cancelButtonIndex)
+        return;
+    
+    UIImagePickerController * controller = [[UIImagePickerController alloc] init];
+    controller.delegate = self;
+    controller.sourceType = (buttonIndex == 0)
+                          ? UIImagePickerControllerSourceTypeCamera
+                          : UIImagePickerControllerSourceTypePhotoLibrary;
+    
+    [self presentModalViewController:controller animated:YES];
+}
+
 - (void)composeBarViewDidPressUtilityButton:(PHFComposeBarView *)composeBarView {
     [self appendTextToTextView:@"Utility button pressed"];
+    [[[UIActionSheet alloc] initWithTitle:nil
+                                 delegate:self
+                        cancelButtonTitle:@"Cancel"
+                   destructiveButtonTitle:nil
+                        otherButtonTitles:@"Take Photo or Video",@"Choose Existing",nil] showInView:self.view];
 }
 
 - (void)composeBarView:(PHFComposeBarView *)composeBarView

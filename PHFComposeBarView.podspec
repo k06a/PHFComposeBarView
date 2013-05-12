@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name           = 'PHFComposeBarView'
-  s.version        = '1.2.2'
+  s.version        = '1.2.3'
   s.summary        = 'A precise reconstruction of the compose bar from iOS Messages.app.'
   s.description    = <<-DESC
 The compose bar from the messages application on iOS is often replicated in
@@ -15,7 +15,7 @@ causes that button to become visible.
   s.license        = { :type => 'MIT', :file => 'LICENSE' }
   s.author         = { 'Philipe Fatio' => 'me@phili.pe',
                        'Anton Bukov' => 'k06aaa@gmail.com' }
-  s.source         = { :git => 'https://github.com/fphilipe/PHFComposeBarView.git', :tag => 'v1.2.2' }
+  s.source         = { :git => 'https://github.com/fphilipe/PHFComposeBarView.git', :tag => 'v1.2.3' }
   s.source_files   = 'Classes/*'
   s.resources      = 'Resources/*'
   s.preserve_paths = 'LICENSE', 'README.md'

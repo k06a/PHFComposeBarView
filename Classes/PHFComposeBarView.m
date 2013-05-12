@@ -97,6 +97,11 @@ static CGFloat kTextViewToSuperviewHeightDelta;
 - (void)layoutSubviews {
     [super layoutSubviews];
     [self resizeTextViewIfNeededAnimated:YES];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSRange range = self.textView.selectedRange;
+        self.textView.attributedText = self.textView.attributedText;
+        self.textView.selectedRange = range;
+    });
 }
 
 #pragma mark - UITextViewDelegate

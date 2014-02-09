@@ -9,7 +9,9 @@
 @implementation PHFComposeBarView_TextView
 
 // Only allow iOS to set the offset when the user scrolls or is selecting
-// text. Else it sets it in unpredictable ways which we don't want.
+// text. This is needed in order to suppress the animation when a line breaks.
+// This animation is not present in the Messages.app. The scrolling to the
+// correct position is handled in -scrollToCaretIfNeeded of the main view.
 - (void)setContentOffset:(CGPoint)contentOffset {
     if ([self selectedRange].length || [self isTracking] || [self isDecelerating])
         [super setContentOffset:contentOffset];
@@ -20,6 +22,7 @@
     [super setContentOffset:contentOffset];
 }
 
+<<<<<<< HEAD
 // Slightly decrease the caret size as in iMessage.
 - (CGRect)caretRectForPosition:(UITextPosition *)position {
     CGRect rect = [super caretRectForPosition:position];
@@ -187,4 +190,6 @@
     return array;
 }
 
+=======
+>>>>>>> 4b0c7066cc659a28f5552954aee9bec6df785518
 @end
